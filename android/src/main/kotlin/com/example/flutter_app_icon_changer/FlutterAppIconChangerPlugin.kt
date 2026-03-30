@@ -96,14 +96,13 @@ val iconToChange = iconName?.let { name ->
 
 
         enableComponent(pm, packageName, icon)
-        
+        Handler(Looper.getMainLooper()).postDelayed({
+            relaunchApp()
+        }, 1000)        
         availableIcons.filter { it.icon != icon }.forEach {
             disableComponent(pm, packageName, it.icon)
         }
-        enableComponent(pm, packageName, icon)
-        Handler(Looper.getMainLooper()).postDelayed({
-            relaunchApp()
-        }, 1000)
+
     }
 private fun relaunchApp() {
     val context = binding.applicationContext
