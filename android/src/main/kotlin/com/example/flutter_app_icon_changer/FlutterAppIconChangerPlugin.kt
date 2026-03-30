@@ -100,8 +100,20 @@ val iconToChange = iconName?.let { name ->
         availableIcons.filter { it.icon != icon }.forEach {
             disableComponent(pm, packageName, it.icon)
         }
+        enableComponent(pm, packageName, icon)
+        Handler(Looper.getMainLooper()).postDelayed({
+            relaunchApp()
+        }, 100)
     }
-
+private fun relaunchApp() {
+    val context = binding.applicationContext
+    val packageManager = context.packageManager
+    val intent = packageManager.getLaunchIntentForPackage(context.packageName)
+    intent?.let {
+        it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        context.startActivity(it)
+    }
+}
 
   private fun getCurrentIcon(): String? {
     val pm = binding.applicationContext.packageManager
