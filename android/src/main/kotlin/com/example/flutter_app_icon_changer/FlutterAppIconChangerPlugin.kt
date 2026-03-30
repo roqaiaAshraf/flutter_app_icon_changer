@@ -90,7 +90,18 @@ class FlutterAppIconChangerPlugin: FlutterPlugin, MethodCallHandler {
     } else {
       setIcon(iconToChange, result)
     }
-  Log.d("IconDebug", "iconToChange = $iconToChange, package = ${context.packageName}") 
+    val componentName = ComponentName(
+        context,
+        "${context.packageName}.${iconToChange}"
+    )
+
+    val intent = Intent(Intent.ACTION_MAIN).apply {
+        addCategory(Intent.CATEGORY_LAUNCHER)
+        component = componentName
+        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+    } 
+
+    context.startActivity(intent)
   }
 
   private fun setIcon(icon: String, result: MethodChannel.Result) {
