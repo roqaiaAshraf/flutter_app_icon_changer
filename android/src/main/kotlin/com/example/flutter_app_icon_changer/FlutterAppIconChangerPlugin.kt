@@ -100,7 +100,7 @@ val iconToChange = iconName?.let { name ->
             relaunchApp()
         }, 1000)        
         availableIcons.filter { it.icon != icon }.forEach {
-            disableComponent(pm, packageName, it.icon)
+        
         }
 
     }
