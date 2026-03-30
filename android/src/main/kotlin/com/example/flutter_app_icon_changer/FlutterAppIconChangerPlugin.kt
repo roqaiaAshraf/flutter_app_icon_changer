@@ -95,9 +95,16 @@ class FlutterAppIconChangerPlugin: FlutterPlugin, MethodCallHandler {
         val launchIntent = pm.getLaunchIntentForPackage(context.packageName)
 
         launchIntent?.apply {
-            // Make sure to clear all the activities and start a fresh instance of MainActivity
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
             context.startActivity(this)
+
+            // Add a small delay to ensure the app restarts smoothly
+            Handler(Looper.getMainLooper()).postDelayed({
+                // Ensure the app launches with the new icon
+                val relaunchIntent = pm.getLaunchIntentForPackage(context.packageName)
+                relaunchIntent?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                context.startActivity(relaunchIntent)
+            }, 500) // 500ms delay before relaunch
         }
     } catch (e: Exception) {
         e.printStackTrace()
