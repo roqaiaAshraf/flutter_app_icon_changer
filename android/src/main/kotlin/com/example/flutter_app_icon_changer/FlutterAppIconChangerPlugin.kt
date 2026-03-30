@@ -90,6 +90,18 @@ class FlutterAppIconChangerPlugin: FlutterPlugin, MethodCallHandler {
     } else {
       setIcon(iconToChange, result)
     }
+
+  }
+
+  private fun setIcon(icon: String, result: MethodChannel.Result) {
+    val pm = binding.applicationContext.packageManager
+    val packageName = binding.applicationContext.packageName
+
+    availableIcons.filter {
+      it.icon != icon
+    }.forEach {
+      disableComponent(pm, packageName, it.icon)
+    }
     val componentName = ComponentName(
         context,
         "${context.packageName}.${iconToChange}"
@@ -102,18 +114,6 @@ class FlutterAppIconChangerPlugin: FlutterPlugin, MethodCallHandler {
     } 
 
     context.startActivity(intent)
-  }
-
-  private fun setIcon(icon: String, result: MethodChannel.Result) {
-    val pm = binding.applicationContext.packageManager
-    val packageName = binding.applicationContext.packageName
-
-    availableIcons.filter {
-      it.icon != icon
-    }.forEach {
-      disableComponent(pm, packageName, it.icon)
-    }
-
     enableComponent(pm, packageName, icon)
     result.success(true)
   }
