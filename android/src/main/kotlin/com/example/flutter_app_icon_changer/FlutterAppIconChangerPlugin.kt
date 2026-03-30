@@ -90,25 +90,7 @@ class FlutterAppIconChangerPlugin: FlutterPlugin, MethodCallHandler {
     } else {
       setIcon(iconToChange, result)
     }
-    try {
-        val pm = context.packageManager
-        val launchIntent = pm.getLaunchIntentForPackage(context.packageName)
-
-        launchIntent?.apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            context.startActivity(this)
-
-            // Add a small delay to ensure the app restarts smoothly
-            Handler(Looper.getMainLooper()).postDelayed({
-                // Ensure the app launches with the new icon
-                val relaunchIntent = pm.getLaunchIntentForPackage(context.packageName)
-                relaunchIntent?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                context.startActivity(relaunchIntent)
-            }, 500) // 500ms delay before relaunch
-        }
-    } catch (e: Exception) {
-        e.printStackTrace()
-    }
+  Log.d("IconDebug", "iconToChange = $iconToChange, package = ${context.packageName}") 
   }
 
   private fun setIcon(icon: String, result: MethodChannel.Result) {
