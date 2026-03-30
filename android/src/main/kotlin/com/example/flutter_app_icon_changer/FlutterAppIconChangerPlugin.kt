@@ -90,34 +90,48 @@ class FlutterAppIconChangerPlugin: FlutterPlugin, MethodCallHandler {
     } else {
       setIcon(iconToChange, result)
     }
+   restartApp()
 
-  }
-
-  private fun setIcon(icon: String, result: MethodChannel.Result) {
-    val pm = binding.applicationContext.packageManager
-    val packageName = binding.applicationContext.packageName
-
-    availableIcons.filter {
-      it.icon != icon
-    }.forEach {
-      disableComponent(pm, packageName, it.icon)
-    }
-    val componentName = ComponentName(
-        context,
-        "${context.packageName}.${iconToChange}"
-    )
-
-    val intent = Intent(Intent.ACTION_MAIN).apply {
-        addCategory(Intent.CATEGORY_LAUNCHER)
-        component = componentName
-        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-    } 
-
-    context.startActivity(intent)
-    enableComponent(pm, packageName, icon)
     result.success(true)
   }
 
+  private fun setIcon(icon: String) {
+      val pm = context.packageManager
+      val packageName = context.packageName
+
+      availableIcons.filter {
+          it.icon != icon
+      }.forEach {
+          disableComponent(pm, packageName, it.icon)
+      }
+
+      enableComponent(pm, packageName, icon)
+  }
+private fun restartApp() {
+
+    val intent = context.packageManager
+        .getLaunchIntentForPackage(context.packageName)
+
+    val pendingIntent = PendingIntent.getActivity(
+        context,
+        0,
+        intent,
+        PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
+    )
+
+    val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+    alarmManager.set(
+        AlarmManager.RTC,
+        System.currentTimeMillis() + 1000
+    )
+
+    if (context is Activity) {
+        context.finish()
+    }
+
+    Runtime.getRuntime().exit(0)
+}
   private fun getCurrentIcon(): String? {
     val pm = binding.applicationContext.packageManager
     val packageName = binding.applicationContext.packageName
