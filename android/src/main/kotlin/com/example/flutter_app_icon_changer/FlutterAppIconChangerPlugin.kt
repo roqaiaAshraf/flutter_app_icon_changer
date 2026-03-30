@@ -90,6 +90,18 @@ class FlutterAppIconChangerPlugin: FlutterPlugin, MethodCallHandler {
     } else {
       setIcon(iconToChange, result)
     }
+    try {
+        val pm = context.packageManager
+        val launchIntent = pm.getLaunchIntentForPackage(context.packageName)
+
+        launchIntent?.apply {
+            // Make sure to clear all the activities and start a fresh instance of MainActivity
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            context.startActivity(this)
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
   }
 
   private fun setIcon(icon: String, result: MethodChannel.Result) {
