@@ -94,11 +94,12 @@ val iconToChange = iconName?.let { name ->
         val pm = binding.applicationContext.packageManager
         val packageName = binding.applicationContext.packageName
 
+
+        enableComponent(pm, packageName, icon)
+        
         availableIcons.filter { it.icon != icon }.forEach {
             disableComponent(pm, packageName, it.icon)
         }
-
-        enableComponent(pm, packageName, icon)
     }
 
 
