@@ -77,61 +77,31 @@ class FlutterAppIconChangerPlugin: FlutterPlugin, MethodCallHandler {
 
   private fun changeIcon(iconName: String?, result: MethodChannel.Result) {
     val defaultIcon = availableIcons.firstOrNull { it.isDefaultIcon } ?: availableIcons.first()
+val iconToChange = iconName?.let { name ->
+            availableIcons.firstOrNull { it.icon == name }?.icon
+        } ?: defaultIcon.icon
 
-    val iconToChange = if (iconName == null) {
-      defaultIcon.icon
-    } else {
-      availableIcons.firstOrNull { it.icon == iconName }?.icon
+        if (iconToChange == null) {
+            result.error("ICON_NOT_FOUND", "Icon $iconName not found", null)
+        } else {
+            setIcon(iconToChange)
+
+            result.success(true)
+        }
     }
 
-    if (iconToChange == null) {
-      setIcon(defaultIcon.icon, result)
-      result.error("ICON_NOT_FOUND", "Icon $iconName not found", null)
-    } else {
-      setIcon(iconToChange, result)
-    }
-   restartApp()
+    private fun setIcon(icon: String) {
+        val pm = binding.applicationContext.packageManager
+        val packageName = binding.applicationContext.packageName
 
-    result.success(true)
-  }
+        availableIcons.filter { it.icon != icon }.forEach {
+            disableComponent(pm, packageName, it.icon)
+        }
 
-  private fun setIcon(icon: String) {
-      val pm = context.packageManager
-      val packageName = context.packageName
-
-      availableIcons.filter {
-          it.icon != icon
-      }.forEach {
-          disableComponent(pm, packageName, it.icon)
-      }
-
-      enableComponent(pm, packageName, icon)
-  }
-private fun restartApp() {
-
-    val intent = context.packageManager
-        .getLaunchIntentForPackage(context.packageName)
-
-    val pendingIntent = PendingIntent.getActivity(
-        context,
-        0,
-        intent,
-        PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
-    )
-
-    val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-
-    alarmManager.set(
-        AlarmManager.RTC,
-        System.currentTimeMillis() + 1000
-    )
-
-    if (context is Activity) {
-        context.finish()
+        enableComponent(pm, packageName, icon)
     }
 
-    Runtime.getRuntime().exit(0)
-}
+
   private fun getCurrentIcon(): String? {
     val pm = binding.applicationContext.packageManager
     val packageName = binding.applicationContext.packageName
