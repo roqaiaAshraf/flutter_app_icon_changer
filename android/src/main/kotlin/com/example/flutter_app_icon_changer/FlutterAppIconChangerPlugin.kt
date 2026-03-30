@@ -108,11 +108,20 @@ val iconToChange = iconName?.let { name ->
 private fun relaunchApp() {
     val context = binding.applicationContext
     val packageManager = context.packageManager
-    val intent = packageManager.getLaunchIntentForPackage(context.packageName)
-    intent?.let {
-        it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-        context.startActivity(it)
+
+    val newIcon = getCurrentIcon()
+    val intent = if (newIcon != null) {
+        val component = ComponentName(context.packageName, "${context.packageName}.$newIcon")
+        Intent(Intent.ACTION_MAIN).apply {
+            addCategory(Intent.CATEGORY_LAUNCHER)
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            component = component
+        }
+    } else {
+        packageManager.getLaunchIntentForPackage(context.packageName)
     }
+
+    intent?.let { context.startActivity(it) }
 }
 
   private fun getCurrentIcon(): String? {
